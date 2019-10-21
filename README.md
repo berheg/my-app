@@ -1,1 +1,1 @@
-https://github.com/berheg/my-app
+https://berheg.github.io/my-app/
