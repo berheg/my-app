@@ -5,14 +5,17 @@ import Todos from './components/Todo';
 import AddTodo from './components/AddTodo';
 import About from './components/pages/About';
 import Form from './components/Form';
-import stateForm from './components/stateFormObject';
+import HeaderH1 from './components/formElement/header1'
 import './App.css';
 //App component class
 class App extends Component {
 	state = {
 		todos: [],
     counter:0,
-    text: 'No Item'
+    text: 'No Item',
+    inputDescription:'',
+    inputDeadline: '',
+    indexOfInput: 0
 	};
   //excuted when the component is mounted
 	componentDidMount() {
@@ -46,46 +49,49 @@ class App extends Component {
     this.setState({title: 'Update'}); 
     console.log(this.state.title);   
 };
-
+handleDescriptionChange = event => {
+  this.setState({
+    inputDescription: event.target.value
+  })
+  }
+  handleDeadlineChange = event => {
+  this.setState({
+    inputDeadline: event.target.value
+      })      
+}
   // Add Todo
-  addTodo = () => {
-    //const {description, deadline} = stateForm[0];
-    if(stateForm[0]!== undefined && stateForm[0].description!== undefined){
+  addTodo = () => {   
+    if(this.state.inputDescription!== '' && this.state.inputDeadline!== ''){
       let newId;
       if(this.state.todos.length)
         newId = this.state.todos.length +1;
       else
         newId = 4;
-      const inputTodo = { description: stateForm[0].description,
-                          deadline: stateForm[0].deadline,
+      const inputTodo = { description: this.state.inputDescription,
+                          deadline: this.state.inputDeadline,
                           id: newId
                         }
-      this.setState({ todos: this.state.todos.concat(inputTodo) });
-      console.log(stateForm);
+      this.setState({ todos: this.state.todos.concat(inputTodo) });      
       console.log(this.state.todos);
-      stateForm[0] = [];
+      this.setState({inputDescription:''});
+      this.setState({inputDeadline: ''});
 
     }
-    else {
+    else { 
       let taskObject;
       fetch( 'https://gist.githubusercontent.com/benna100/391eee7a119b50bd2c5960ab51622532/raw')
         .then(res =>res.json())
         .then(json => {
-         taskObject = json;
-        //this.setState({todos: json})
-        let todosLength=this.state.todos.length;
+         taskObject = json;        
+        let todosLength=this.state.indexOfInput;
         let flag = false;
         while((todosLength < taskObject.length ) && !flag){       
-        const  newTodo = taskObject[todosLength];
-        if(this.state.todos.includes(newTodo)) 
-          todosLength += 1;
-        else{
+          const  newTodo = taskObject[todosLength];       
+          this.setState({indexOfInput: this.state.indexOfInput +1});        
           this.setState({ todos: this.state.todos.concat(newTodo) }); 
-          flag = true;
-        }          
-      }; 
-      }) 
-      //const randomIndex = Math.floor(Math.random() * Math.floor(3));    
+          flag = true;                
+        }; 
+      })        
       
     }    
     if(this.state.todos)
@@ -103,10 +109,13 @@ class App extends Component {
               path='/my-app' 
               render={(props) => (
                 <React.Fragment>
-                  <h1>Tasks Todo</h1>
-                  <h1>You have used {this.state.counter} seconds on this website</h1>
+                  <HeaderH1 title={"Tasks Todo"} />
+                  <HeaderH1 title= {`You have used ${this.state.counter} seconds on this website`} />                  
                   <div>
-                    <Form addTodo = {this.addTodo} />
+                    <Form addTodo = {this.addTodo} 
+                      handleDescriptionChange = { this.handleDescriptionChange}
+                      handleDeadlineChange = { this.handleDeadlineChange }
+                    />
                   </div>
                   <div className="todoForm">
                     <AddTodo todos={this.state.todos} addTodo={this.addTodo} text={this.state.text}/>
